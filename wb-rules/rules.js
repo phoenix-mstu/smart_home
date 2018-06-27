@@ -6,13 +6,19 @@ valve_polarity = {
     VALVE_TOWEL2: 0,
     VALVE_STORE: 1,
     VALVE_FLOOR_LIVINGTABLE: 0,
-    VALVE_FLOOR_LIVINGWALL: 0,
+    VALVE_FLOOR_LIVINGWALL: 1,
     VALVE_FLOOR_KITCHEN: 0,
+    
     VALVE_BEDROOM: 1,
     VALVE_PLAYROOM: 1,
     VALVE_LIVING_WALLHEATER: 1,
     VALVE_LIVING_FLOORHEATER: 1
 };
+
+economy_mode = false;
+service_mode = false;
+service_floor_on = true;
+disable_floor = true;
 
 function makeLightRule(name, detector_control, relay_control, timeout) {
   var timer = false;
@@ -57,62 +63,15 @@ function makeLightSceneRule(name, detector_control, relay_to_set_array) {
   });
 }
 
-function buildWhenChanged(detector_controls) {
-    var whenChanged = [];
-    if (detector_controls.isArray) {
-        for (var i in detector_controls) {
-            if (detector_controls.hasOwnProperty(i)) {
-                whenChanged[i] = "wb-gpio/" + detector_controls[i];
-            }
-        }
-    } else {
-        whenChanged[0] = "wb-gpio/" + detector_controls;
-    }
-    return whenChanged;
-}
-
-function checkIsOn(detector_controls) {
-    if (detector_controls.isArray) {
-        for (var i in detector_controls) {
-            if (detector_controls.hasOwnProperty(i)) {
-                if (!dev["wb-gpio"][detector_controls[i]]) return false;
-            }
-        }
-        return true;
-    } else {
-        return dev["wb-gpio"][detector_controls];
-    }
-}
-
-function makeLongPressRule(name, detector_controls, timeout, callback) {
-    var timer = false;
-    defineRule(name, {
-        whenChanged: buildWhenChanged(detector_controls),
-        then: function(newValue, devName, cellName) {
-            if (timer) {
-                clearTimeout(timer);
-                timer = false;
-            }
-            if (checkIsOn(detector_controls)) {
-                timer = setTimeout(callback, timeout * 1000);
-            }
-        }
-    });
-}
-
-function switchArray(devices, value) {
-    for (var i in devices) {
-        if (!devices.hasOwnProperty(i)) continue;
-        dev["wb-gpio"][devices[i]] = value;
-    }
-}
-
 function switchValves(devices, value) {
+    if (service_mode) {
+        value = 1;
+    }
     for (var i in devices) {
         if (!devices.hasOwnProperty(i)) continue;
-        var on = valve_polarity(i);
-        var off = on === 1 ? 0 : 1;
-        dev["wb-gpio"][devices[i]] = value ? on : off;
+        var on = valve_polarity[devices[i]];
+        var off = (on === 1) ? 0 : 1;
+        dev["wb-gpio"][devices[i]] = (value === 1) ? on : off;
     }
 }
 
@@ -120,6 +79,10 @@ var floor_on = false;
 var heaters_on = false;
 
 function processBoilerStatus() {
+    if (service_mode) {
+        heaters_on = false;
+        floor_on = service_floor_on;
+    }
     if (heaters_on || floor_on) {
         log('boiler on');
         dev["wb-gpio"]["BOILER_SWITCH"] = 1;
@@ -138,8 +101,6 @@ function processBoilerStatus() {
     }
 }
 
-// EXT1_K7
-
 defineRule("temperature", {
     whenChanged: [
 	    "xiaomi/sensor_ht_158d00010bec80_temperature",
@@ -151,21 +112,23 @@ defineRule("temperature", {
             bedroom: {
                 sensor: "sensor_ht_158d00010bec80_temperature", // bedroom
                 valves: ["VALVE_BEDROOM"],
-                temp_min: 2400,
-                temp_max: 2500
+                temp_min: economy_mode ? 1600 : 2500
             },
             playroom: {
                 sensor: "sensor_ht_158d00010becc6_temperature", // playroom
                 valves: ["VALVE_PLAYROOM"],
-                temp_min: 2400,
-                temp_max: 2500
+                temp_min: economy_mode ? 1600 : 2500
             },
             living: {
                 sensor: "sensor_ht_158d00010bed71_temperature", // living
                 valves: ["VALVE_LIVING_WALLHEATER", "VALVE_LIVING_FLOORHEATER"],
-                temp_min: 2400,
-                temp_max: 2500
-            }
+                temp_min: economy_mode ? 1600 : 2500
+            },
+            // living_floor: {
+            //     sensor: "sensor_ht_158d00010bed71_temperature", // living
+            //     valves: ["VALVE_FLOOR_LAUNDRY", "VALVE_FLOOR_LIVINGTABLE", "VALVE_FLOOR_LIVINGWALL", "VALVE_FLOOR_KITCHEN"],
+            //     temp_min: economy_mode ? 1000 : 2400
+            // }
         };
         var need_boiler = false;
         log('==== temp ====');
@@ -185,24 +148,30 @@ defineRule("temperature", {
         }
         heaters_on = need_boiler;
         processBoilerStatus();
+
+        // -10 => 55k
+        //   0 => 32k
+        //  10 => 19k
+        //  20 => 12k
+        //  30 => 8k
+        // set boiler temperature ~50C
+        // dev["wb-w1"]["2c-00000002ceb5"] = 70000;
+        var v = 30000; // 50
+        // var v = 70000; // 78
+        // var v = 100000;
+        dev["wb-w1"]["2c-00000002ceb5"] = 100000 - v;
+
         log('==============');
     }
 });
 
-
 defineRule("floor_heating", {
-    when: cron("@every 20m"),
+    when: cron("@every 5m"),
     then: function () {
         log('==== floor_cron ====');
-        var valves = ["VALVE_FLOOR_LAUNDRY", "VALVE_FLOOR_BATHROOM", "VALVE_TOWEL1", "VALVE_TOWEL2", "VALVE_STORE"];
-        // var valves_off = ["VALVE_FLOOR_LIVINGTABLE", "VALVE_FLOOR_LIVINGWALL"];
-        // switchArray(valves_off, 1); // выключаем всегда
-        var valves_on = ["VALVE_FLOOR_LIVINGTABLE", "VALVE_FLOOR_LIVINGWALL", "VALVE_FLOOR_KITCHEN"];
-        switchValves(valves_on, 1); // включаем всегда
-        floor_on = !floor_on;
+        var valves = ["VALVE_FLOOR_LAUNDRY", "VALVE_FLOOR_BATHROOM", "VALVE_TOWEL2", "VALVE_STORE"];
 
-        // 11
-        floor_on = true;
+        floor_on = !economy_mode && !disable_floor;
 
         switchValves(valves, floor_on ? 1 : 0);
         processBoilerStatus();
@@ -280,5 +249,8 @@ makeLightRule("30", "SWITCH_STORE", "LIGHT_STORE");
 makeLightRule("32", "SWITCH_LAUNDRY_IN", "LIGHT_LAUNDRY_MIRROR");
 
 // fan works half an hour
-makeLightRule("33", "SWITCH_LAUNDRY_EXT2", "FAN_LAUNDRY", 30*60);
-makeLightRule("28", "SWITCH_BATHROOM_EXT2", "FAN_BATHROOM", 30*60);
+// makeLightRule("33", "SWITCH_LAUNDRY_EXT2", "FAN_LAUNDRY", 30*60);
+// makeLightRule("28", "SWITCH_BATHROOM_EXT2", "FAN_BATHROOM", 30*60);
+
+makeCallFunctionRule("33", "SWITCH_LAUNDRY_EXT2", LaundryFan.manualToggle);
+makeCallFunctionRule("28", "SWITCH_BATHROOM_EXT2", BathroomFan.manualToggle);
