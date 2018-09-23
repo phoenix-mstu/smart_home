@@ -70,22 +70,37 @@ defineRule("987987", {
     }
 });
 
-var laundry_heater_button_name = "switch_158d0001d6abdf_status";
 var laundry_heater_timer;
 defineRule("laundry_heater_button", {
-    whenChanged: "xiaomi/" + laundry_heater_button_name ,
+    whenChanged: "xiaomi/switch_158d0001d6abdf_status",
     then: function(newValue, devName, cellName) {
         var timeout = 2 * 60 * 60;
         if (laundry_heater_timer) {
             clearTimeout(laundry_heater_timer);
         }
-        switchValves(["VALVE_TOWEL1"], 1);
+        Towel1Heater.on();
         log("laundry heater on");
         laundry_heater_timer = setTimeout(function () {
-            switchValves(["VALVE_TOWEL1"], 0);
+            Towel1Heater.off();
             laundry_heater_timer = false;
             log("laundry heater off");
         }, timeout * 1000);
-
+    }
+});
+var bath_heater_timer;
+defineRule("bath_heater_button", {
+    whenChanged: "xiaomi/switch_158d0001b195a2_status",
+    then: function(newValue, devName, cellName) {
+        var timeout = 2 * 60 * 60;
+        if (bath_heater_timer) {
+            clearTimeout(bath_heater_timer);
+        }
+        Towel2Heater.on();
+        log("bath heater on");
+        bath_heater_timer = setTimeout(function () {
+            Towel2Heater.off();
+            bath_heater_timer = false;
+            log("bath heater off");
+        }, timeout * 1000);
     }
 });
