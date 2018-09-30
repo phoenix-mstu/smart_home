@@ -11,9 +11,34 @@ temp_sensors = {
 
     floor_laundry: "28-8000001f1bdb",
     floor_living_w: "28-8000001f1c19",
-    floor_living_t: "28-8000001f1806"
+    floor_living_t: "28-8000001f1806",
+
+    foutdoor: "28-8000001f1cf4",
+    ffloor_in: "28-8000001f1806",
+    fboiler: "28-8000001f1dc0",
+    fkitchen: "28-0316a11e67ff"
+
 
 };
+
+// 2c-00000002ceb5 70168
+//
+// 28-8000001f1806
+// 34 °C
+// 28-8000001f17db
+// 24.562 °C
+// 28-8000001f1e18
+// 24.75 °C
+// 28-8000001f1bdb
+// 27.125 °C
+// 28-8000001f1cf4
+// 5.875 °C
+// 28-8000001f1dc0
+// 47.625 °C
+// 28-0316a11e67ff
+// 26.437 °C
+// 28-8000001f1c19
+// 28.25 °C
 
 function getTemperature(room)
 {

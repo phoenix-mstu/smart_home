@@ -15,7 +15,7 @@ defineRule("temperature", {
             bedroom: {
                 sensor: "sensor_ht_158d00010bec80_temperature", // bedroom
                 valve: BedroomHeater,
-                temp_min: economy_mode ? 1600 : 2500
+                temp_min: economy_mode ? 1600 : 2200
             },
             playroom: {
                 sensor: "sensor_ht_158d00010becc6_temperature", // playroom
