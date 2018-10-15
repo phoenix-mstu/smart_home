@@ -1,0 +1,3 @@
+[submodule "wirenboard/mihome"]
+	path = wirenboard/mihome
+	url = git@github.com:phoenix-mstu/mihome.git
