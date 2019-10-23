@@ -62,3 +62,8 @@ function switchArray(devices, value) {
         dev["wb-gpio"][devices[i]] = value;
     }
 }
+
+var lastRuleId = 0;
+function getNewRuleName() {
+    return 'rule' + lastRuleId;
+}

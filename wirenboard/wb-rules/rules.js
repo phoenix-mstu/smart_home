@@ -6,32 +6,49 @@ disable_floor = true;
 
 defineRule("temperature", {
     whenChanged: [
-	    "xiaomi/sensor_ht_158d00010bec80_temperature",
-	    "xiaomi/sensor_ht_158d00010becc6_temperature",
-	    "xiaomi/sensor_ht_158d00010bed71_temperature"
+	    "xiaomi/t_bedroom_temperature",
+	    "xiaomi/t_playroom_temperature",
+	    "xiaomi/t_living_temperature",
+        "xiaomi/t_laundry_temperature",
+        "xiaomi/t_bathroom_temperature"
     ],
     then: function(newValue, devName, cellName) {
         var rooms = {
             bedroom: {
-                sensor: "sensor_ht_158d00010bec80_temperature", // bedroom
+                sensor: "t_bedroom_temperature", // bedroom
                 valve: BedroomHeater,
-                temp_min: economy_mode ? 1600 : 2200
+                temp_min: economy_mode ? 16.00 : 22.00
             },
             playroom: {
-                sensor: "sensor_ht_158d00010becc6_temperature", // playroom
+                sensor: "t_playroom_temperature", // playroom
                 valve: PlayroomHeater,
-                temp_min: economy_mode ? 1600 : 2500
+                temp_min: economy_mode ? 16.00 : 25.00
             },
             living: {
-                sensor: "sensor_ht_158d00010bed71_temperature", // living
+                sensor: "t_living_temperature", // living
                 valve: LivingWallHeater,
-                temp_min: economy_mode ? 1600 : 2500
+                temp_min: economy_mode ? 16.00 : 24.00
             },
-            // living_floor: {
-            //     sensor: "sensor_ht_158d00010bed71_temperature", // living
-            //     valves: ["VALVE_FLOOR_LAUNDRY", "VALVE_FLOOR_LIVINGTABLE", "VALVE_FLOOR_LIVINGWALL", "VALVE_FLOOR_KITCHEN"],
-            //     temp_min: economy_mode ? 1000 : 2400
-            // }
+            living_fl: {
+                sensor: "t_living_temperature", // living
+                valve: LivingFloorHeater,
+                temp_min: economy_mode ? 16.00 : 24.00
+            },
+            laundry: {
+                sensor: "t_laundry_temperature",
+                valve: Towel1Heater,
+                temp_min: economy_mode ? 16.00 : 24.00
+            },
+            bathroom: {
+                sensor: "t_bathroom_temperature",
+                valve: Towel2Heater,
+                temp_min: economy_mode ? 16.00 : 24.00
+            },
+            store: {
+                sensor: "t_store_temperature",
+                valve: StoreHeater,
+                temp_min: economy_mode ? 16.00 : 24.00
+            }
         };
         log('==== temp ====');
         for (var name in rooms) {
@@ -40,10 +57,10 @@ defineRule("temperature", {
                 var temp = dev["xiaomi"][room.sensor];
                 if (temp < room.temp_min) {
                     log(name + ' on - ' + temp);
-                    room.valve.on();
+                    room.valve.on('t_control');
                 } else {
                     log(name + ' off - ' + temp);
-                    room.valve.off();
+                    room.valve.off('t_control');
                 }
             }
         }
