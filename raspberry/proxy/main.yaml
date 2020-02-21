@@ -1,0 +1,14 @@
+
+broker_host: tcp://wb.home:1883
+broker_login:
+broker_password:
+
+clients:
+
+  - login: yandex2mqtt
+    password: yandex2mqtt
+    filters_config: /config/homeassistant.yaml
+
+  - login: homeassistant
+    password: homeassistant
+    filters_config: /config/homeassistant.yaml

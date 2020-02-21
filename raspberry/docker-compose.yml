@@ -1,0 +1,39 @@
+
+version: "3"
+
+services:
+  proxy:
+    build: https://github.com/phoenix-mstu/go-modifying-mqtt-proxy.git
+    environment:
+      - MQTT_PROXY_CONFIG_PATH=/config/main.yaml
+    restart: unless-stopped
+    volumes:
+      - ./proxy:/config
+  homeassistant:
+    image: homeassistant/home-assistant:stable
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Moscow
+      - MQTT_HOST=proxy
+      - MQTT_USER=homeassistant
+      - MQTT_PASS=${HOMEASSISTANT_PASS}
+    volumes:
+      - ./homeassistant/volume:/config
+      - ./homeassistant/configuration.yaml:/config/configuration.yaml
+      - ./homeassistant/groups.yaml:/config/groups.yaml
+      - ./homeassistant/automations.yaml:/config/automations.yaml
+      - ./homeassistant/scripts.yaml:/config/scripts.yaml
+      - ./homeassistant/scenes.yaml:/config/scenes.yaml
+    ports:
+      - "8123:8123"
+  yandex2mqtt:
+    build: https://github.com/bawdiest/yandex2mqtt.git
+    environment:
+      - TZ=Europe/Moscow
+      - MQTT_HOST=proxy
+      - MQTT_USER=yandex2mqtt
+      - MQTT_PASS=${YANDEX2MQTT_PASS}
+    ports:
+      - "1800:1800"
+    volumes:
+      - ./yandex2mqtt/config.js:/usr/src/yandex2mqtt/conf.js

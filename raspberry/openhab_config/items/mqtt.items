@@ -1,1 +1,0 @@
-Number temperature "temp [%.1f]" {mqtt="<[mqtt:/devices/xiaomi/controls/sensor_ht_158d00010bec80_temperature:state:default]"}

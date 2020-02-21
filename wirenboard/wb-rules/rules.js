@@ -2,68 +2,99 @@ economy_mode = false;
 service_mode = false;
 service_floor_on = true;
 disable_floor = true;
+min_temperature = 16;
+max_temperature = 30;
+default_temperature = 22;
 
+var rooms = [
+    {
+        name: "bedroom",
+        sensor: "t_bedroom_temperature", // bedroom
+        valve: BedroomHeater,
+        temp_min: economy_mode ? 16.00 : 22.00
+    },
+    {
+        name: "playroom",
+        sensor: "t_playroom_temperature", // playroom
+        valve: PlayroomHeater,
+        temp_min: 23.00
+    },
+    {
+        name: "living",
+        sensor: "t_living_temperature", // living
+        valve: LivingWallHeater,
+        temp_min: economy_mode ? 16.00 : 24.00
+    },
+    // {
+    //     name: "",
+    //     sensor: "t_living_temperature", // living
+    //     valve: LivingFloorHeater,
+    //     temp_min: economy_mode ? 16.00 : 24.00
+    // },
+    {
+        name: "laundry",
+        sensor: "t_laundry_temperature",
+        valve: Towel1Heater,
+        temp_min: economy_mode ? 16.00 : 24.00
+    },
+    {
+        name: "bathroom",
+        sensor: "t_bathroom_temperature",
+        valve: Towel2Heater,
+        temp_min: economy_mode ? 16.00 : 25.00
+    },
+    {
+        name: "store",
+        sensor: "t_store_temperature",
+        valve: StoreHeater,
+        temp_min: economy_mode ? 16.00 : 20.00
+    }
+];
+
+var cells = {};
+var cells_state = {};
+rooms.forEach(function (room) {
+   cells[room.name] = {
+       type: 'range',
+       max: max_temperature,
+       value: default_temperature
+   };
+   cells_state[room.name] = {
+       type: 'switch',
+       value: false
+   }
+});
+defineVirtualDevice('climate_controls', {
+    title: "Climate controls",
+    cells: cells
+});
+defineVirtualDevice('climate_heater_state', {
+    title: "Climate heater state",
+    cells: cells_state
+});
 
 defineRule("temperature", {
-    whenChanged: [
-	    "xiaomi/t_bedroom_temperature",
-	    "xiaomi/t_playroom_temperature",
-	    "xiaomi/t_living_temperature",
-        "xiaomi/t_laundry_temperature",
-        "xiaomi/t_bathroom_temperature"
-    ],
+    whenChanged: rooms.map(function (room) {return "xiaomi/" + room.sensor})
+        .concat(rooms.map(function (room) {return "climate_controls/" + room.name})),
     then: function(newValue, devName, cellName) {
-        var rooms = {
-            bedroom: {
-                sensor: "t_bedroom_temperature", // bedroom
-                valve: BedroomHeater,
-                temp_min: economy_mode ? 16.00 : 22.00
-            },
-            playroom: {
-                sensor: "t_playroom_temperature", // playroom
-                valve: PlayroomHeater,
-                temp_min: economy_mode ? 16.00 : 25.00
-            },
-            living: {
-                sensor: "t_living_temperature", // living
-                valve: LivingWallHeater,
-                temp_min: economy_mode ? 16.00 : 24.00
-            },
-            living_fl: {
-                sensor: "t_living_temperature", // living
-                valve: LivingFloorHeater,
-                temp_min: economy_mode ? 16.00 : 24.00
-            },
-            laundry: {
-                sensor: "t_laundry_temperature",
-                valve: Towel1Heater,
-                temp_min: economy_mode ? 16.00 : 24.00
-            },
-            bathroom: {
-                sensor: "t_bathroom_temperature",
-                valve: Towel2Heater,
-                temp_min: economy_mode ? 16.00 : 24.00
-            },
-            store: {
-                sensor: "t_store_temperature",
-                valve: StoreHeater,
-                temp_min: economy_mode ? 16.00 : 24.00
-            }
-        };
         log('==== temp ====');
-        for (var name in rooms) {
-            if (rooms.hasOwnProperty(name)) {
-                var room = rooms[name];
-                var temp = dev["xiaomi"][room.sensor];
-                if (temp < room.temp_min) {
-                    log(name + ' on - ' + temp);
-                    room.valve.on('t_control');
-                } else {
-                    log(name + ' off - ' + temp);
-                    room.valve.off('t_control');
-                }
+        rooms.forEach(function (room) {
+            var temp = dev["xiaomi"][room.sensor];
+            var target_temp = dev["climate_controls"][room.name];
+            if (!target_temp) {
+                target_temp = room.temp_min
             }
-        }
+            if (temp < target_temp) {
+                log(room.name + ' on - ' + temp);
+                room.valve.on('t_control');
+                dev["climate_heater_state"][room.name] = 1;
+            } else {
+                log(room.name + ' off - ' + temp);
+                room.valve.off('t_control');
+                dev["climate_heater_state"][room.name] = 0;
+            }
+        });
+        HeatController.applyStateChange();
         // heaters_on = need_boiler;
         // processBoilerStatus();
 
