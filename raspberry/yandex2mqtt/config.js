@@ -16,22 +16,16 @@ module.exports = {
     {
         id: '1',
         name: 'Yandex',
-        clientId: 'yandex-smarthome12345',
-        clientSecret: 'secret12345',
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
         isTrusted: false
         }
     ],
 
     users: [{
             id: '1',
-            username: 'admin',
-            password: 'admin',
-            name: 'Administrator'
-        },
-        {
-            id: '2',
-            username: 'root',
-            password: 'root',
+            username: process.env.CLIENT_USER_NAME,
+            password: process.env.CLIENT_USER_PASS,
             name: 'Administrator'
         }
     ],
@@ -45,8 +39,8 @@ module.exports = {
             mqtt: [
                  {
                     type: 'on',
-                    set: '/devices/yandex/controls/light1/on',
-                    stat: '/devices/yandex/controls/light1'
+                    set: '/light/LIVING_TABLE/state',
+                    stat: '/light/LIVING_TABLE/state'
                 }
             ],
             capabilities: [

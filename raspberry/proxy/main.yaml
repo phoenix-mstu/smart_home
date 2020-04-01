@@ -7,7 +7,7 @@ clients:
 
   - login: yandex2mqtt
     password: yandex2mqtt
-    filters_config: /config/homeassistant.yaml
+    filters_config: /config/yandex.yaml
 
   - login: homeassistant
     password: homeassistant

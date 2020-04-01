@@ -1,0 +1,10 @@
+
+broker_to_client:
+
+  - topic: ^/devices/wb-gpio/controls/LIGHT_([^/]*)$
+    template: /light/{{.f1}}/state
+
+client_to_broker:
+
+  - topic: ^/light/([^/]*)/state$
+    template: /devices/wb-gpio/controls/LIGHT_{{.f1}}/on

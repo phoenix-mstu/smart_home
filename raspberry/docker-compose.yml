@@ -1,22 +1,34 @@
 
 version: "3"
 
+########################################################################
+# This is main compose file used to start up all the services in my home
+# It may also be used to startup the same environment locally on my PC
+# Magic ...
+########################################################################
+
 services:
+
   proxy:
+    container_name: proxy
     build: https://github.com/phoenix-mstu/go-modifying-mqtt-proxy.git
     environment:
       - MQTT_PROXY_CONFIG_PATH=/config/main.yaml
     restart: unless-stopped
+    ports:
+      - "1883:1883"
     volumes:
       - ./proxy:/config
+
   homeassistant:
+    container_name: homeassistant
     image: homeassistant/home-assistant:stable
     restart: unless-stopped
     environment:
       - TZ=Europe/Moscow
       - MQTT_HOST=proxy
       - MQTT_USER=homeassistant
-      - MQTT_PASS=${HOMEASSISTANT_PASS}
+      - MQTT_PASS=${PROXY_HOMEASSISTANT_PASS}
     volumes:
       - ./homeassistant/volume:/config
       - ./homeassistant/configuration.yaml:/config/configuration.yaml
@@ -26,14 +38,22 @@ services:
       - ./homeassistant/scenes.yaml:/config/scenes.yaml
     ports:
       - "8123:8123"
+
   yandex2mqtt:
-    build: https://github.com/bawdiest/yandex2mqtt.git
+    container_name: yandex2mqtt
+    build: https://github.com/phoenix-mstu/yandex2mqtt.git
+    restart: unless-stopped
     environment:
       - TZ=Europe/Moscow
       - MQTT_HOST=proxy
       - MQTT_USER=yandex2mqtt
-      - MQTT_PASS=${YANDEX2MQTT_PASS}
+      - MQTT_PASS=${PROXY_YANDEX2MQTT_PASS}
+      - CLIENT_ID=${YANDEX2MQTT_CLIENT_ID}
+      - CLIENT_SECRET=${YANDEX2MQTT_CLIENT_SECRET}
+      - CLIENT_USER_NAME=${YANDEX2MQTT_CLIENT_USER_NAME}
+      - CLIENT_USER_PASS=${YANDEX2MQTT_CLIENT_USER_PASS}
     ports:
       - "1800:1800"
     volumes:
       - ./yandex2mqtt/config.js:/usr/src/yandex2mqtt/conf.js
+      - ./yandex2mqtt/volume:/usr/src/yandex2mqtt/storage

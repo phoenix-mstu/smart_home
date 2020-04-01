@@ -2,7 +2,7 @@
 broker_to_client:
 
   #########################################################################
-  -
+
   - topic: ^/devices/floor_controls/controls/([^/]*)/meta/type$
     template: /homeassistant/switch/{{.f1}}/config
     val_map:

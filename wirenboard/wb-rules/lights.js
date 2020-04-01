@@ -92,6 +92,10 @@ makeLightRule("32", "SWITCH_LAUNDRY_IN", "LIGHT_LAUNDRY_MIRROR");
 
 makeLightRule("32-1", "SWITCH_BEDROOM_BED_RIGHT2", "LIGHT_BATHROOM_MAIN");
 makeLightRule("32-2", "SWITCH_BEDROOM_BED_LEFT2", "LIGHT_BATHROOM_MAIN");
+makeLightRule("33", "SWITCH_HALL1_STAIRS1", "LIGHT_HALL2_PICTURE");
+makeLongPressRule("34", "SWITCH_HALL1_STAIRS2", 2, function() {
+    switchArray(second_floor_lights, 0);
+});
 
 
 makeLongPressRule("21_1", "SWITCH_HALL1_DOOR2", 2, function() {
