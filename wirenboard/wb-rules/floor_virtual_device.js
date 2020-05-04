@@ -23,9 +23,9 @@ setTimeout(function(){
     function applyState() {
         Object.keys(devices).forEach(function (name) {
             if (dev["floor_controls"][name]) {
-                devices[name].on();
+                devices[name].on('floor_controls');
             } else {
-                devices[name].off();
+                devices[name].off('floor_controls');
             }
         });
         HeatController.applyStateChange();

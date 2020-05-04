@@ -2,6 +2,10 @@
  * Created by gkuzovnikov on 29/11/17.
  */
 
+new___ = {
+    kitchen: "0516a1207dff"
+};
+
 temp_sensors = {
     bedroom: "t_bedroom",
     playroom: "t_playroom",
@@ -103,10 +107,10 @@ defineRule("laundry_heater_button", {
         if (laundry_heater_timer) {
             clearTimeout(laundry_heater_timer);
         }
-        Towel1Heater.on();
+        Towel1Heater.on('towel_btn');
         log("laundry heater on");
         laundry_heater_timer = setTimeout(function () {
-            Towel1Heater.off();
+            Towel1Heater.off('towel_btn');
             laundry_heater_timer = false;
             log("laundry heater off");
         }, timeout * 1000);
@@ -120,10 +124,10 @@ defineRule("bath_heater_button", {
         if (bath_heater_timer) {
             clearTimeout(bath_heater_timer);
         }
-        Towel2Heater.on();
+        Towel2Heater.on('towel_btn');
         log("bath heater on");
         bath_heater_timer = setTimeout(function () {
-            Towel2Heater.off();
+            Towel2Heater.off('towel_btn');
             bath_heater_timer = false;
             log("bath heater off");
         }, timeout * 1000);

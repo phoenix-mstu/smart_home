@@ -1,6 +1,8 @@
 
 function DeviceHeatAbstract(name) {
 
+    var on_sources = {};
+
     this._isOn = false;
     this._isEnabled = false;
     this._last_wb_value = -1;
@@ -15,12 +17,18 @@ function DeviceHeatAbstract(name) {
         }
     };
 
-    this.on = function () {
+    this.on = function (source) {
+        source = typeof source !== 'undefined' ? source : 'default';
+        on_sources[source] = 1;
         this._isOn = true;
     };
 
-    this.off = function () {
-        this._isOn = false;
+    this.off = function (source) {
+        source = typeof source !== 'undefined' ? source : 'default';
+        delete on_sources[source];
+        if (Object.keys(on_sources).length === 0) {
+            this._isOn = false;
+        }
     };
 
     this.enable = function () {
