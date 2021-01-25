@@ -104,9 +104,9 @@ function DeviceHeatSource(name, on_timeout) {
 
 BoilerPump = new DeviceHeatSource("BOILER_SWITCH", 300000);
 FloorPump =  new DeviceHeatSource("FLOOR_PUMP", 300000);
-FloorDevicesHeatSource  = new DeviceFloorHeatSourceValve("VALVE_FLOOR_LIVINGWALL", 1);
+FloorDevicesHeatSource  = new DeviceFloorHeatSourceValve("VALVE_STORE", 0);
 
-StoreHeater =       new DeviceHeatValve("VALVE_STORE",              0);
+// StoreHeater =       new DeviceHeatValve("VALVE_STORE",              0);
 Towel2Heater =      new DeviceHeatValve("VALVE_TOWEL2",             0);
 Towel1Heater =      new DeviceHeatValve("VALVE_TOWEL1",             0);
 PlayroomHeater =    new DeviceHeatValve("VALVE_PLAYROOM",           1);
@@ -123,7 +123,7 @@ LivingTableFloorHeater = new DeviceHeatValve("VALVE_FLOOR_LIVINGTABLE", 0);
 function HeatControllerFn() {
 
     var heaters = [
-        StoreHeater,
+        // StoreHeater,
         Towel2Heater,
         Towel1Heater,
         PlayroomHeater,
@@ -182,36 +182,69 @@ function HeatControllerFn() {
 
 HeatController = new HeatControllerFn();
 
-setTimeout(function () {
-    var t_in = "28-8000001f1806";
-    var required_t = 35;
-    var t_prev = 0;
-
-    var switchValveIfRequired = function(newValue, devName, cellName) {
-        var in_temp = dev["wb-w1"][t_in];
-
-        var t_round = Math.round(2 * in_temp) / 2;
-        if (t_round < required_t) {
-            FloorDevicesHeatSource.on();
-            if (t_prev !== t_round) {
-                log('floor on. ' + t_round)
-            }
-        } else {
-            FloorDevicesHeatSource.off();
-            if (t_prev !== t_round) {
-                log('floor off. ' + t_round)
-            }
+function AvgTemperatureCalc(interval) {
+    var values = [];  // слишком большой массив за 30 минут!! много дублей
+    this.add = function (temperature) {
+        var ts = (new Date()).getTime() / 1000;
+        values.push({
+            'time': ts,
+            'temperature': temperature
+        });
+        while (values.length > 1 && values[1].time <= ts - interval) {
+            values.shift();
         }
-        t_prev = t_round;
+        if (values.length > 1) {
+            var result = values.reduce(function (acc, value) {
+                var summ = 0;
+                var delta = 0;
+                if (acc !== null) {
+                    var dt = value.time - Math.max(ts - interval, acc.prev.time)
+                    summ = acc.summ + acc.prev.temperature * dt
+                    delta = acc.delta + dt
+                }
+                return {
+                    'summ': summ,
+                    'delta': delta,
+                    'prev': value
+                }
+            }, null);
+            return result.summ / result.delta
+        } else {
+            return values[0].temperature;
+        }
+    }
+}
 
-        HeatController.applyStateChange();
-    };
+setTimeout(function () {
 
-    switchValveIfRequired();
+    var t_in = "28-8000001f1806";
+    var t_on = 34;
+    var t_off = 36;
+    var avg_calc = new AvgTemperatureCalc(30*60)
+    var first_run = true
+
     defineRule("floor_temperature_control", {
         whenChanged: "wb-w1/" + t_in,
-        then: switchValveIfRequired
-    });
+        then: function(newValue, devName, cellName) {
+            var in_temp = avg_calc.add(dev["wb-w1"][t_in]);
+            log('floor avg temp: ' + in_temp);
 
-    // HeatController.applyStateChange();
+            if (first_run) {
+                first_run = false;
+                if (in_temp < (t_on + t_off)/2) {
+                    FloorDevicesHeatSource.on();
+                } else {
+                    FloorDevicesHeatSource.off();
+                }
+            } else {
+                if (in_temp < t_on) {
+                    FloorDevicesHeatSource.on();
+                }
+                if (in_temp > t_off) {
+                    FloorDevicesHeatSource.off();
+                }
+            }
+            HeatController.applyStateChange();
+        }
+    });
 }, 1000);

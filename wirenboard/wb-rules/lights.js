@@ -77,7 +77,6 @@ for (var sw in sceene_config) {
     })
 }
 
-makeLightRule("2", "SWITCH_LAUNDRY_EXT1", "LIGHT_LAUNDRY_MAIN");
 makeLightRule("3", "SWITCH_HALL2_STAIRS2", "LIGHT_HALL2_MAIN");
 makeLightRule("3_1", "SWITCH_HALL2_STAIRS1", "LIGHT_HALL2_PICTURE");
 makeLightRule("20", "SWITCH_BEDROOM3", "LIGHT_BEDROOM_CENTER");
@@ -85,13 +84,12 @@ makeLightRule("21", "SWITCH_HALL1_DOOR1", "LIGHT_HALL1");
 makeLightRule("22", "SWITCH_PLAYROOM4", "LIGHT_PLAYROOM_CENTER");
 makeLightRule("24", "SWITCH_PLAYROOM3", "LIGHT_PLAYROOM_LINE");
 makeLightRule("25", "SWITCH_BEDROOM4", "LIGHT_BEDROOM_SECOND");
-makeLightRule("27", "SWITCH_BATHROOM_EXT1", "LIGHT_BATHROOM_MAIN");
-makeLightRule("29", "SWITCH_BATHROOM_IN", "LIGHT_BATHROOM_MIRROR");
+// makeLightRule("27", "SWITCH_BATHROOM_EXT1", "LIGHT_BATHROOM_MAIN");
+// makeLightRule("29", "SWITCH_BATHROOM_IN", "LIGHT_BATHROOM_MIRROR");
 makeLightRule("30", "SWITCH_STORE", "LIGHT_STORE");
-makeLightRule("32", "SWITCH_LAUNDRY_IN", "LIGHT_LAUNDRY_MIRROR");
+// makeLightRule("2", "SWITCH_LAUNDRY_EXT1", "LIGHT_LAUNDRY_MAIN");
+// makeLightRule("32", "SWITCH_LAUNDRY_IN", "LIGHT_LAUNDRY_MIRROR");
 
-makeLightRule("32-1", "SWITCH_BEDROOM_BED_RIGHT2", "LIGHT_BATHROOM_MAIN");
-makeLightRule("32-2", "SWITCH_BEDROOM_BED_LEFT2", "LIGHT_BATHROOM_MAIN");
 makeLightRule("33", "SWITCH_HALL1_STAIRS1", "LIGHT_HALL2_PICTURE");
 makeLongPressRule("34", "SWITCH_HALL1_STAIRS2", 2, function() {
     switchArray(second_floor_lights, 0);
@@ -108,3 +106,36 @@ makeLongPressRule("21_2", "SWITCH_BEDROOM_BED_RIGHT1", 2, function() {
 makeLongPressRule("21_3", "SWITCH_BEDROOM_BED_LEFT1", 2, function() {
     switchArray(first_floor_lights, 0)
 });
+
+function makeBathLightsRule(name, controls1, controls2, day_light, night_light) {
+    var d_from = 6;
+    var d_to = 23;
+    var getLightNames = function() {
+        var hour = ((new Date).getHours() + 3) % 24;
+        return {
+            main: d_from <= hour && hour <= d_to ? day_light : night_light,
+            second: d_from <= hour && hour <= d_to ? night_light : day_light
+        }
+    }
+    makeLongPressRule(name + "_1", controls1, 0, function() {
+        var lights = getLightNames()
+        if (relayOff(lights.second)) {
+            relayOff(lights.main)
+        } else {
+            relayToggle(lights.main)
+        }
+    });
+    makeLongPressRule(name + "_2", controls2, 0, function() {
+        var lights = getLightNames()
+        relayToggle(lights.second)
+    });
+}
+makeBathLightsRule(
+    "BATH_LIGHTS",
+    ["SWITCH_BATHROOM_EXT1", "SWITCH_BEDROOM_BED_RIGHT2", "SWITCH_BEDROOM_BED_LEFT2"],
+    "SWITCH_BATHROOM_IN",
+    "LIGHT_BATHROOM_MAIN", "LIGHT_BATHROOM_MIRROR"
+);
+makeBathLightsRule(
+    "LAUNDRY_LIGHTS", "SWITCH_LAUNDRY_EXT1", "SWITCH_LAUNDRY_IN", "LIGHT_LAUNDRY_MAIN", "LIGHT_LAUNDRY_MIRROR"
+);

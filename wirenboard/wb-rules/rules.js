@@ -43,12 +43,12 @@ var rooms = [
         valve: Towel2Heater,
         temp_min: economy_mode ? 16.00 : 25.00
     },
-    {
-        name: "store",
-        sensor: "t_store_temperature",
-        valve: StoreHeater,
-        temp_min: economy_mode ? 16.00 : 20.00
-    }
+    // {
+    //     name: "store",
+    //     sensor: "t_store_temperature",
+    //     valve: StoreHeater,
+    //     temp_min: economy_mode ? 16.00 : 20.00
+    // }
 ];
 
 var cells = {};
