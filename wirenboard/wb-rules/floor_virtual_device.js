@@ -5,7 +5,8 @@ setTimeout(function(){
         laundry: LaundryFloorHeater,
         kitchen: KitchenFloorHeater,
         bathroom: BathroomFloorHeater,
-        living_table: LivingTableFloorHeater
+        living_table: LivingTableFloorHeater,
+        living_wall: LivingWallFloorHeater
     };
 
     var cells = {};

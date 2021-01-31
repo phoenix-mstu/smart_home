@@ -104,21 +104,21 @@ function DeviceHeatSource(name, on_timeout) {
 
 BoilerPump = new DeviceHeatSource("BOILER_SWITCH", 300000);
 FloorPump =  new DeviceHeatSource("FLOOR_PUMP", 300000);
-FloorDevicesHeatSource  = new DeviceFloorHeatSourceValve("VALVE_STORE", 0);
+FloorDevicesHeatSource  = new DeviceFloorHeatSourceValve("VALVE_STORE", 1);
 
 // StoreHeater =       new DeviceHeatValve("VALVE_STORE",              0);
-Towel2Heater =      new DeviceHeatValve("VALVE_TOWEL2",             0);
-Towel1Heater =      new DeviceHeatValve("VALVE_TOWEL1",             0);
+Towel2Heater =      new DeviceHeatValve("VALVE_TOWEL2",             1);
+Towel1Heater =      new DeviceHeatValve("VALVE_TOWEL1",             1);
 PlayroomHeater =    new DeviceHeatValve("VALVE_PLAYROOM",           1);
 BedroomHeater =     new DeviceHeatValve("VALVE_BEDROOM",            1);
 LivingWallHeater =  new DeviceHeatValve("VALVE_LIVING_WALLHEATER",  1);
 LivingFloorHeater = new DeviceHeatValve("VALVE_LIVING_FLOORHEATER", 1);
 
-// LivingWallFloorHeater =  new DeviceHeatValve("VALVE_FLOOR_LIVINGWALL",  1, [FloorPump]);
 LaundryFloorHeater =     new DeviceHeatValve("VALVE_FLOOR_LAUNDRY",     0);
 KitchenFloorHeater =     new DeviceHeatValve("VALVE_FLOOR_KITCHEN",     0);
 BathroomFloorHeater =    new DeviceHeatValve("VALVE_FLOOR_BATHROOM",    0);
 LivingTableFloorHeater = new DeviceHeatValve("VALVE_FLOOR_LIVINGTABLE", 0);
+LivingWallFloorHeater =  new DeviceHeatValve("VALVE_FLOOR_LIVINGWALL",  0);
 
 function HeatControllerFn() {
 
@@ -137,7 +137,8 @@ function HeatControllerFn() {
         LaundryFloorHeater,
         KitchenFloorHeater,
         BathroomFloorHeater,
-        LivingTableFloorHeater
+        LivingTableFloorHeater,
+        LivingWallFloorHeater
     ];
 
     heaters.isOn = floor_heaters.isOn = function () {
