@@ -63,6 +63,38 @@ broker_to_client:
     template: /climate/{{.f1}}/mode_state_topic
     val_map: {0: off, 1: heat}
 
+  #########################################################################
+
+  - topic: ^/devices/xiaomi/controls/t_([^/]*)_humidity/meta/type$
+    template: /homeassistant/sensor/{{.f1}}/config
+    val_map:
+      value: >-
+        {
+        "device_class":"humidity",
+        "unit_of_measurement":"%",
+        "state_topic":"/climate/{{.f1}}/humidity",
+        "name":"{{.f1}}"
+        }
+
+  - topic: ^/devices/xiaomi/controls/t_([^/]*)_humidity$
+    template: /climate/{{.f1}}/humidity
+
+  #########################################################################
+
+#  - topic: ^/devices/wb-gpio/controls/SWITCH_([^/]*)/meta/type$
+#    template: /homeassistant/binary_sensor/{{.f1}}/config
+#    val_map:
+#      switch: >-
+#        {
+#        "state_topic":"/button/{{.f1}}/state",
+#        "name":"{{.f1}}",
+#        "device_class":"moving"
+#        }
+#
+#  - topic: ^/devices/wb-gpio/controls/SWITCH_([^/]*)$
+#    template: /button/{{.f1}}/state
+#    val_map: {0: OFF, 1: ON}
+
 client_to_broker:
 
   - topic: ^/floor/([^/]*)/state$
