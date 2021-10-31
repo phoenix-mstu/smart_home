@@ -8,7 +8,7 @@ door_sensors = {
 
 first_floor_lights = [
     "LIGHT_LIVING_WALL", "LIGHT_LIVING_TABLE", "LIGHT_LIVING_KITCHEN_BL", "LIGHT_LIVING_KITCHEN", "LIGHT_LIVING_CENTER",
-    "LIGHT_LAUNDRY_MAIN", "LIGHT_HALL1", "LIGHT_LAUNDRY_MIRROR"
+    "LIGHT_LAUNDRY_MAIN", "LIGHT_HALL1", "LIGHT_LAUNDRY_MIRROR", "FAN_STOVE"
 ];
 second_floor_lights = [
     "LIGHT_BEDROOM_CENTER", "LIGHT_HALL2_MAIN", "LIGHT_HALL2_PICTURE", "LIGHT_PLAYROOM_CENTER", "LIGHT_PLAYROOM_LINE",
@@ -60,11 +60,11 @@ function makeLightSceneRule(name, detector_control, relay_to_set_array) {
 
 sceene_config = {
     // wall - center - table - kitchen - kitchen lights
-    SWITCH_LIVING_BIG0: [0, 0, 0, 0, 0],
-    SWITCH_LIVING_BIG1: [0, 0, 1, 0, 1],
-    SWITCH_LIVING_BIG2: [1, 0, 1, 0, 1],
-    SWITCH_LIVING_BIG3: [1, 0, 0, 1, 0],
-    SWITCH_LIVING_BIG4: [1, 1, 1, 1, 1]
+    SWITCH_LIVING_BIG0: [0, 0, 0, 0, 0, 0],
+    SWITCH_LIVING_BIG1: [0, 0, 1, 0, 1, 1],
+    SWITCH_LIVING_BIG2: [1, 0, 1, 0, 1, 1],
+    SWITCH_LIVING_BIG3: [1, 0, 0, 1, 0, 0],
+    SWITCH_LIVING_BIG4: [1, 1, 1, 1, 1, 1]
 };
 for (var sw in sceene_config) {
     if (!sceene_config.hasOwnProperty(sw)) continue;
@@ -73,7 +73,8 @@ for (var sw in sceene_config) {
         LIGHT_LIVING_CENTER: sceene_config[sw][1],
         LIGHT_LIVING_TABLE: sceene_config[sw][2],
         LIGHT_LIVING_KITCHEN: sceene_config[sw][3],
-        LIGHT_LIVING_KITCHEN_BL: sceene_config[sw][4]
+        LIGHT_LIVING_KITCHEN_BL: sceene_config[sw][4],
+        FAN_STOVE: sceene_config[sw][5]
     })
 }
 
