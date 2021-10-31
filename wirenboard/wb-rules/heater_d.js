@@ -117,8 +117,8 @@ LivingFloorHeater = new DeviceHeatValve("VALVE_LIVING_FLOORHEATER", 1);
 LaundryFloorHeater =     new DeviceHeatValve("VALVE_FLOOR_LAUNDRY",     0);
 KitchenFloorHeater =     new DeviceHeatValve("VALVE_FLOOR_KITCHEN",     0);
 BathroomFloorHeater =    new DeviceHeatValve("VALVE_FLOOR_BATHROOM",    0);
-LivingTableFloorHeater = new DeviceHeatValve("VALVE_FLOOR_LIVINGTABLE", 0);
-LivingWallFloorHeater =  new DeviceHeatValve("VALVE_FLOOR_LIVINGWALL",  0);
+LivingTableFloorHeater = new DeviceHeatValve("VALVE_FLOOR_LIVINGTABLE", 1);
+LivingWallFloorHeater =  new DeviceHeatValve("VALVE_FLOOR_LIVINGWALL",  1);
 
 function HeatControllerFn() {
 
