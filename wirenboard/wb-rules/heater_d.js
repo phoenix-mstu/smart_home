@@ -230,21 +230,22 @@ setTimeout(function () {
             var in_temp = avg_calc.add(dev["wb-w1"][t_in]);
             log('floor avg temp: ' + in_temp);
 
-            if (first_run) {
-                first_run = false;
-                if (in_temp < (t_on + t_off)/2) {
-                    FloorDevicesHeatSource.on();
-                } else {
-                    FloorDevicesHeatSource.off();
-                }
-            } else {
-                if (in_temp < t_on) {
-                    FloorDevicesHeatSource.on();
-                }
-                if (in_temp > t_off) {
-                    FloorDevicesHeatSource.off();
-                }
-            }
+            // if (first_run) {
+            //     first_run = false;
+            //     if (in_temp < (t_on + t_off)/2) {
+            //         FloorDevicesHeatSource.on();
+            //     } else {
+            //         FloorDevicesHeatSource.off();
+            //     }
+            // } else {
+            //     if (in_temp < t_on) {
+            //         FloorDevicesHeatSource.on();
+            //     }
+            //     if (in_temp > t_off) {
+            //         FloorDevicesHeatSource.off();
+            //     }
+            // }
+            FloorDevicesHeatSource.on() // временно включаею, т.к. датчики сломались
             HeatController.applyStateChange();
         }
     });
